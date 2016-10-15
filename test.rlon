@@ -1,0 +1,76 @@
+(translate)->{
+  (@ = 0)?{
+    "Zero"
+  }~(@ = 1)?{
+    "One"
+  }~(@ = 2)?{
+    "Two"
+  }~(@ = 3)?{
+    "Three"
+  }~(@ = 4)?{
+    "Four"
+  }~(@ = 5)?{
+    "Five"
+  }~(@ = 6)?{
+    "Six"
+  }~(@ = 7)?{
+    "Seven"
+  }~(@ = 8)?{
+    "Eight"
+  }~(@ = 9)?{
+    "Nine"
+  }
+}
+
+/* I doubt that I've made this syntax arcane enough... */
+(pyramid)->{
+  (0<->@):{
+    (0<->(@+1)):{
+      "*".$(print)
+    }::(@[1])
+  }::(newl)
+}
+
+(pyramids)->{
+  (@ > 0)?{
+    $(pyramid).(@ - 1).(pyramids)
+  }
+}
+
+(main)->{
+  10
+    .$(pyramid)
+    .${("Fibonacci of " + @ + ": " + (fibonacci)).(println)}
+    .${("Factorial of " + @ + ": " + (factorial)).(println)}
+    .("Translation of " + @ + ": " + (human)).(println)
+    ."racket\rlon\lang.rkt".(countParen).("# of Paren: " + @).(println)
+    .{1, 2, 3, 4}.(average).("Average: " + @).(println)
+}
+
+(factorial)->{
+  (@ > 1)?{
+    (@ * (@ - 1).(factorial))
+  }
+}
+
+(fibonacci)->{
+  (@ > 1)?{
+    ((@ - 1).(fibonacci) + (@ - 2).(fibonacci))
+  }
+}
+
+(human)->{
+  (string).(chars):{
+    (number).(translate)
+  }::(list)
+}
+
+(countParen)->{
+  (fopen):{
+    (chars):?{{1,2}[?@]}[]
+  }::(add)
+}
+
+(average)->{
+  (@::(add) / @[])
+}
