@@ -1,16 +1,35 @@
-; Rlon Evaluator
+; --------------------
+; Rlon Enviorment
+; --------------------
+
+; --------------------
+; File Langauge
+; --------------------
 #lang racket
 
-; Imports
-; None
+; --------------------
+; Requirements
+; --------------------
+(require
+  rlon/core
+)
 
-; Provides
-(provide (all-defined-out))
+; --------------------
+; Provisions
+; --------------------
+(provide
+  (all-defined-out)
+)
 
+; --------------------
 ; Methods
-(define (empty-env)
-  (lambda (searchVar)
-    (error "No binding found!(")
+; --------------------
+(define (env [fmap (lang-map)])
+  (lambda (ident)
+    (cond
+      [(hash-has-key? fmap ident) (hash-ref fmap ident)]
+      [else (error (~a "No binding found for function: '" ident "'!"))]
+    )
   )
 )
 

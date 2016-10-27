@@ -1,3 +1,5 @@
+#lang rlon
+
 (translate)->{
   (@ = 0)?{
     "Zero"
@@ -67,10 +69,10 @@
 
 (countParen)->{
   (fopen):{
-    (chars):?{{1,2}[?@]}[]
+    {(chars):?{{'(',')'}[?@]}}.(length)
   }::(add)
 }
 
 (average)->{
-  (@::(add) / @[])
+  (@::(add) / @.(length))
 }

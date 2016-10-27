@@ -1,0 +1,9 @@
+#lang rlon
+
+/*
+ A simple hello world implementation.
+*/
+
+(main)->{
+  "Hello, World!"
+}

@@ -1,49 +1,38 @@
-; Maths Parser
+; --------------------
+; Rlon Parser
+; --------------------
+
+; --------------------
+; File Langauge
+; --------------------
 #lang racket
 
-; Imports
+; --------------------
+; Requirements
+; --------------------
 (require
   parser-tools/lex
   parser-tools/yacc
-  "boolutil.rkt"
-  "miscutil.rkt"
-  "lexer.rkt"
+  rlon/expressions
+  rlon/boolutil
+  rlon/miscutil
+  rlon/lexer
 )
 
-; Provides
-(provide (all-defined-out))
+; --------------------
+; Provisions
+; --------------------
+(provide
+  (all-defined-out)
+)
 
-; Structs
-
-; Literals
-(struct literal-expr (value) #:transparent)
-
-; Function Call
-(struct call-expr (ident) #:transparent)
-
-; Branch
-(struct dot-expr (from then) #:transparent)
-(struct map-expr (from mapper) #:transparent)
-(struct filter-expr (from filter) #:transparent)
-(struct collect-expr (from using) #:transparent)
-(struct branch-expr (branch) #:transparent)
-(struct if-expr (from then else) #:transparent)
-(struct trans-expr (start end) #:transparent)
-
-; Function
-(struct func-expr (ident func rest) #:transparent)
-(struct list-expr (elements) #:transparent)
-(struct var-expr (val in) #:transparent)
-
-; Operators (Functions)
-(struct unary (func val) #:transparent)
-(struct oper (func left right) #:transparent)
-
-; Parser
+; --------------------
+; Parser Definition
+; --------------------
 (define rlon-parser
   (parser
     (src-pos)
-    (start def)
+    (start import)
     (end EOF)
     (tokens val-tokens op-tokens)
     (error
@@ -52,63 +41,70 @@
       )
     )
     ;(debug "rlon.debug")
-    (yacc-output "rlon.lang")
+    ;(yacc-output "rlon.lang")
     (grammar
+      (import
+        ((IMPORT qname EOL import) (import-expr $2 $4))
+        ((def) $1)
+      )
+      (qname
+        ((IDENT DOT qname) (~a $1 "\\" $3))
+        ((IDENT) (~a $1 ".rlon"))
+      )
       (def
         ; Function Definition
-        ((LPAREN IDENT RPAREN MIN MORE LBRACE block def) (func-expr $2 $7 $8))
-        (() (call-expr "main"))
+        ((LPAREN IDENT RPAREN MIN MORE LBRACE block RBRACE def) (func-expr $2 $7 $9))
+        (() 'EOF)
       )
       (block
         ((VAR MIN MORE expr EOL block) (var-expr $4 $6))
         ((addlist) $1)
         ((vals) (list-expr $1))
         ((expr EOL block) (dot-expr $1 $3))
-        ((expr RBRACE) $1)
-        ((RBRACE) 'ARG)
+        ((expr) $1)
       )
       (vals
         ((expr SEPARATOR vals) (list* $1 $3))
-        ((expr RBRACE) (list $1))
+        ((expr) (list $1))
       )
       (addlist
-        ((expr ADD addlist) (oper add-lists $1 $3))
-        ((expr RBRACE) (list $1))
+        ((expr ADD addlist) (binary add-lists $1 $3))
+        ((expr) (list $1))
       )
       (expr
         ; Structure
-        ((expr IF LBRACE block elif) (if-expr $1 $4 $5))
+        ((expr IF LBRACE block RBRACE elif) (if-expr $1 $4 $6))
         ((trans) $1)
       )
       (elif
-        ((BRIDGE trans IF LBRACE block elif) (if-expr $2 $5 $6))
-        ((BRIDGE LBRACE block) $3)
+        ((BRIDGE trans IF LBRACE block RBRACE elif) (if-expr $2 $5 $7))
+        ((BRIDGE LBRACE block RBRACE) $3)
         (() 'ARG)
       )
       (paren
-        ((IDENT RPAREN) (call-expr $1))
-        ((expr LESS MIN MORE expr RPAREN) (oper in-range $1 $5))
-        ((expr EQUAL expr RPAREN) (oper eq? $1 $3))
-        ((expr NOT EQUAL expr RPAREN) (oper neq? $1 $4))
-        ((expr LESS EQUAL expr RPAREN) (oper <= $1 $4))
-        ((expr MORE EQUAL expr RPAREN) (oper >= $1 $4))
-        ((expr LESS expr RPAREN) (oper < $1 $3))
-        ((expr MORE expr RPAREN) (oper > $1 $3))
-        ((expr AND expr RPAREN) (oper and? $1 $3))
-        ((expr OR expr RPAREN) (oper or? $1 $3))
-        ((expr MIN expr RPAREN) (oper - $1 $3))
-        ((expr DIV expr RPAREN) (oper / $1 $3))
-        ((expr MOD expr RPAREN) (oper modulo $1 $3))
+        ((IDENT) (call-expr $1))
+        ((expr LESS MIN MORE expr) (binary in-range $1 $5))
+        ((expr EQUAL expr) (binary eq? $1 $3))
+        ((expr NOT EQUAL expr) (binary neq? $1 $4))
+        ((expr LESS EQUAL expr) (binary <= $1 $4))
+        ((expr MORE EQUAL expr) (binary >= $1 $4))
+        ((expr LESS expr) (binary < $1 $3))
+        ((expr MORE expr) (binary > $1 $3))
+        ((expr AND expr) (binary and? $1 $3))
+        ((expr OR expr) (binary or? $1 $3))
+        ((expr MIN expr) (binary - $1 $3))
+        ((expr DIV expr) (binary / $1 $3))
+        ((expr MOD expr) (binary modulo $1 $3))
         ((add) $1)
         ((mul) $1)
       )
       (add
-        ((expr ADD add) (oper add $1 $3))
-        ((expr RPAREN) $1)
+        ((expr ADD add) (binary add $1 $3))
+        ((expr) $1)
       )
       (mul
-        ((expr MUL mul) (oper * $1 $3))
-        ((expr RPAREN) $1)
+        ((expr MUL mul) (binary * $1 $3))
+        ((expr) $1)
       )
       (trans
         ((trans MAP MAP control) (collect-expr $1 $4))
@@ -122,10 +118,9 @@
         ((brack) $1)
       )
       (brack
-        ((brack LBRACKET IF value RBRACKET) (oper contains $1 $4))
+        ((brack LBRACKET IF value RBRACKET) (binary contains $1 $4))
         ((brack LBRACKET BRIDGE value RBRACKET) (unary ~l $4))
-        ((brack LBRACKET value RBRACKET) (oper ~i $1 $3))
-        ((brack LBRACKET RBRACKET) (unary ~len $1))
+        ((brack LBRACKET value RBRACKET) (binary ~i $1 $3))
         ((value) $1)
       )
       (value
@@ -136,17 +131,25 @@
         ((STRING) (literal-expr (string-trim $1 "\"")))
         ((CHAR) (literal-expr (string-ref $1 1)))
         ; Parens
-        ((LPAREN paren) $2)
+        ((LPAREN paren RPAREN) $2)
         ; Blocks
-        ((LBRACE block) $2)
-        ; Callback
-        ((expr) $1)
+        ((LBRACE block RBRACE) $2)
       )
     )
   )
 )
 
-; Util
-(define (rlon-parse-this input)
-  (rlon-parser (rlon-lex-this input))
+; --------------------
+; Utility
+; --------------------
+(define (rlon-parse-port port)
+  (rlon-parser (rlon-lex-port port))
+)
+
+(define (rlon-parse-string input)
+  (rlon-parser (rlon-lex-string input))
+)
+
+(define (rlon-parse-file filename)
+  (rlon-parser (rlon-lex-file filename))
 )

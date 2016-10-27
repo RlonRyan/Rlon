@@ -29,6 +29,10 @@
   (append (vlist (car p)) (vlist (cdr p)))
 )
 
+(define (devoid s)
+  (stream-filter (lambda (e) (not (equal? e (void)))) s)
+)
+
 (define (vlist a)
   (if (void? a) '() (list a))
 )
