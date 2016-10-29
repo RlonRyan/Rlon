@@ -27,6 +27,7 @@
 (define (lang-map)
   (make-hash
     (list
+      ; Constants
       (cons "true" (wrap #t))
       (cons "false" (wrap #f))
       (cons "void" void)
@@ -55,13 +56,16 @@
       (cons "radians" degrees->radians)
       (cons "degrees" radians->degrees)
 
+      ; Lists
+      (cons "join" join)
+
       ; Misc
       (cons "number" number)
       (cons "char" integer->char)
       (cons "code" char->integer)
       (cons "chars" string->list)
       (cons "string" ~ae)
-      (cons "list" collate)
+      (cons "list" ~l)
       (cons "length" ~len)
       (cons "fopen" fopen)
       (cons "regex" regex)
@@ -94,12 +98,12 @@
   (read-line (current-input-port) 'any)
 )
 
-(define (addarg arg)
-  (add (first arg) (second arg))
+(define (addarg a)
+  (add (first a) (second a))
 )
 
-(define (collate arg)
-  (append (~l (first arg)) (~l (second arg)))
+(define (join a)
+  (append (~l (first a)) (~l (second a)))
 )
 
 (define (number a)
