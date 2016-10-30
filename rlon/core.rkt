@@ -11,7 +11,6 @@
 ; Requirements
 ; --------------------
 (require
-  2htdp/batch-io
   math/base
   rlon/miscutil
   rlon/boolutil
@@ -55,6 +54,7 @@
       ; Lists
       (cons "join" join)
       (cons "range" range)
+      (cons "rest" ~rest)
 
       ; Misc
       (cons "number" number)
@@ -63,6 +63,7 @@
       (cons "chars" string->list)
       (cons "string" ~ae)
       (cons "list" ~l)
+      (cons "not" not)
       (cons "length" ~len)
       (cons "fopen" fopen)
       (cons "regex" regex)
@@ -73,10 +74,6 @@
 
 (define (wrap e)
   (lambda (a) e)
-)
-
-(define (list-wrap e)
-  (list e)
 )
 
 (define (print a)
@@ -100,12 +97,12 @@
 )
 
 (define (join a)
-  (append (~l (first a)) (~l (second a)))
+  (add-lists (~i a 0) (~i a 1))
 )
 
 (define (range a)
   (let ([l (~l a)])
-    (in-range (first l) (second l))
+    (in-range (~i l 0) (~i l 1))
   )
 )
 
@@ -114,7 +111,7 @@
 )
 
 (define (fopen a)
-  (~s (read-file a))
+  (~s (open-input-file a))
 )
 
 (define (regex a)

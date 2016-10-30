@@ -45,7 +45,7 @@
     .${("Fibonacci of " + @ + ": " + (fibonacci)).(println)}
     .${("Factorial of " + @ + ": " + (factorial)).(println)}
     .("Translation of " + @ + ": " + (human)).(println)
-    ."rlon\lang.rkt".(countParen).("# of Paren: " + @).(println)
+    ."examples\test.rlon".(countParen).("# of Paren: " + @).(println)
     .{1, 2, 3, 4}.(average).("Average: " + @).(println)
 }
 
@@ -68,9 +68,7 @@
 }
 
 (countParen)->{
-  (fopen):{
-    {(chars):?(isParen)}.(length)
-  }::(add)
+  (fopen):(char):?(isParen).(length)
 }
 
 (isParen)->{

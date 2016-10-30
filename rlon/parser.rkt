@@ -72,8 +72,8 @@
       )
       (paren
         ((IDENT) (call-expr $1))
-        ((expr EQUAL expr) (binary eq? $1 $3))
-        ((expr NOT EQUAL expr) (binary neq? $1 $4))
+        ((expr EQUAL expr) (binary equal? $1 $3))
+        ((expr NOT EQUAL expr) (binary nequal? $1 $4))
         ((expr LESS EQUAL expr) (binary <= $1 $4))
         ((expr MORE EQUAL expr) (binary >= $1 $4))
         ((expr LESS expr) (binary < $1 $3))

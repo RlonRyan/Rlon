@@ -11,18 +11,15 @@
 ; Methods
 (define (add a b)
   (cond
-    [(eq? a (void)) b]
-    [(eq? b (void)) a]
+    [(equal? a (void)) b]
+    [(equal? b (void)) a]
     [(and (number? a) (number? b)) (+ a b)]
     [else (~a a b)]
   )
 )
 
 (define (add-lists a b)
-  (cond
-    [(or (stream? a) (stream? b)) (stream-append (~s a) (~s b))]
-    [else (append (~l a) (~l b))]
-  )
+  (stream-append (~s a) (~s b))
 )
 
 (define (pair->list p)
@@ -39,7 +36,7 @@
 
 (define (contains s a)
   (stream-ormap
-    (lambda (e) (eq? a e))
+    (lambda (e) (equal? a e))
     (~s s)
   )
 )
@@ -61,9 +58,13 @@
 (define (~s a)
   (cond
     [(stream? a) a]
-    [(list? a) (in-list a)]
+    [(sequence? a) (sequence->stream a)]
     [else (in-list (list a))]
   )
+)
+
+(define (~rest a)
+  (stream-rest (~s a))
 )
 
 (define (~i a i)

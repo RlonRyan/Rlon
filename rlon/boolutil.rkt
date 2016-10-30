@@ -21,12 +21,12 @@
   (and (not (and a b)) (or a b))
 )
 
-(define (neq? a b)
-  (not (eq? a b))
+(define (nequal? a b)
+  (not (equal? a b))
 )
 
 (define (void? a)
-  (eq? (void) a)
+  (equal? (void) a)
 )
 
 (define (void?! a)
