@@ -1,0 +1,24 @@
+/*
+ Simple Distance functions implemented in Rlon.
+*/
+
+(distance_1d)->{
+  (@[1] - @[0]).(abs)
+}
+
+(distance_2d)->{
+  #->@[1];
+  @[0].{(
+    {@[0], #[0]}.(distance_1d).(squared) +
+    {@[1], #[1]}.(distance_1d).(squared)
+  )}.(sqrt)
+}
+
+(distance_3d)->{
+  #->@[1];
+  @[0].{(
+    {@[0], #[0]}.(distance_1d).(squared) +
+    {@[1], #[1]}.(distance_1d).(squared) +
+    {@[2], #[2]}.(distance_1d).(squared)
+  )}.(sqrt)
+}

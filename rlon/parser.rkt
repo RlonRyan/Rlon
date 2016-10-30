@@ -58,32 +58,20 @@
       )
       (block
         ((VAR MIN MORE expr EOL block) (var-expr $4 $6))
-        ((addlist) $1)
         ((vals) (list-expr $1))
-        ((expr EOL block) (dot-expr $1 $3))
         ((expr) $1)
       )
       (vals
         ((expr SEPARATOR vals) (list* $1 $3))
-        ((expr) (list $1))
-      )
-      (addlist
-        ((expr ADD addlist) (binary add-lists $1 $3))
-        ((expr) (list $1))
+        ((expr SEPARATOR expr) (list $1 $3))
       )
       (expr
-        ; Structure
-        ((expr IF LBRACE block RBRACE elif) (if-expr $1 $4 $6))
+        ((trans IF LBRACE block RBRACE) (if-expr $1 $4 'ARG))
+        ((trans IF LBRACE block RBRACE BRIDGE expr) (if-expr $1 $4 $7))
         ((trans) $1)
-      )
-      (elif
-        ((BRIDGE trans IF LBRACE block RBRACE elif) (if-expr $2 $5 $7))
-        ((BRIDGE LBRACE block RBRACE) $3)
-        (() 'ARG)
       )
       (paren
         ((IDENT) (call-expr $1))
-        ((expr LESS MIN MORE expr) (binary in-range $1 $5))
         ((expr EQUAL expr) (binary eq? $1 $3))
         ((expr NOT EQUAL expr) (binary neq? $1 $4))
         ((expr LESS EQUAL expr) (binary <= $1 $4))
@@ -95,16 +83,17 @@
         ((expr MIN expr) (binary - $1 $3))
         ((expr DIV expr) (binary / $1 $3))
         ((expr MOD expr) (binary modulo $1 $3))
+        ((expr POW expr) (binary expt $1 $3))
         ((add) $1)
         ((mul) $1)
       )
       (add
         ((expr ADD add) (binary add $1 $3))
-        ((expr) $1)
+        ((expr ADD expr) (binary add $1 $3))
       )
       (mul
         ((expr MUL mul) (binary * $1 $3))
-        ((expr) $1)
+        ((expr MUL expr) (binary * $1 $3))
       )
       (trans
         ((trans MAP MAP control) (collect-expr $1 $4))
@@ -119,7 +108,6 @@
       )
       (brack
         ((brack LBRACKET IF value RBRACKET) (binary contains $1 $4))
-        ((brack LBRACKET BRIDGE value RBRACKET) (unary ~l $4))
         ((brack LBRACKET value RBRACKET) (binary ~i $1 $3))
         ((value) $1)
       )
@@ -127,9 +115,11 @@
         ; Literals
         ((ARG) 'ARG)
         ((VAR) 'VAR)
-        ((NUM) (literal-expr (string->number $1)))
-        ((STRING) (literal-expr (string-trim $1 "\"")))
-        ((CHAR) (literal-expr (string-ref $1 1)))
+        ((NUM) (literal-expr $1))
+        ((STRING) (literal-expr $1))
+        ((CHAR) (literal-expr $1))
+        ((BOOL) (literal-expr $1))
+        ((VOID) (literal-expr $1))
         ; Parens
         ((LPAREN paren RPAREN) $2)
         ; Blocks

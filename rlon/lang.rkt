@@ -53,7 +53,7 @@
   (match expr
     ('ARG arg)
     ('VAR (pop arg))
-    ((var-expr val in) (rlon-eval in fmap (set-val arg val)))
+    ((var-expr val in) (rlon-eval in fmap (set-val arg (rlon-eval val fmap arg))))
     ((dot-expr from to)
       (rlon-eval to fmap (rlon-eval from fmap arg))
     )
@@ -145,7 +145,7 @@
 )
 
 (define (pop arg)
-  (let [(a (car arg))]
+  (let [(a (cdr arg))]
     (if (pair? a) a (cons a (void)))
   )
 )

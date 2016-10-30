@@ -27,11 +27,6 @@
 (define (lang-map)
   (make-hash
     (list
-      ; Constants
-      (cons "true" (wrap #t))
-      (cons "false" (wrap #f))
-      (cons "void" void)
-
       ; Printing
       (cons "print" print)
       (cons "printf" rlon-printf)
@@ -47,6 +42,7 @@
       (cons "abs" abs)
       (cons "pi" (wrap pi))
       (cons "e" (wrap euler.0))
+      (cons "sqrt" sqrt)
       (cons "sin" sin)
       (cons "cos" cos)
       (cons "tan" tan)
@@ -58,6 +54,7 @@
 
       ; Lists
       (cons "join" join)
+      (cons "range" range)
 
       ; Misc
       (cons "number" number)
@@ -104,6 +101,12 @@
 
 (define (join a)
   (append (~l (first a)) (~l (second a)))
+)
+
+(define (range a)
+  (let ([l (~l a)])
+    (in-range (first l) (second l))
+  )
 )
 
 (define (number a)

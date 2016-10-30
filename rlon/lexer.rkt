@@ -28,7 +28,9 @@
 (define-tokens val-tokens (
     IDENT
     STRING
+    VOID
     CHAR
+    BOOL
     NUM
   )
 )
@@ -78,10 +80,15 @@
 ; Lexer Abbr.
 ; --------------------
 (define-lex-abbrevs
-  (id (:: alphabetic (:+ (:or alphabetic numeric "_"))))
+  (id (:: alphabetic (:* (:or alphabetic numeric "_"))))
   (char (:: #\' any-char #\'))
   (string (:: #\" (complement (:: any-string #\" any-string)) #\"))
+  (integer (:+ numeric))
+  (number (:or integer (:: integer "." integer)))
   (comment (:: "/*" (complement (:: any-string "*/" any-string)) "*/"))
+  (true (:or "(true)" "(True)"))
+  (false (:or "(false)" "(False)"))
+  (:void (:or "()" "(void)" "(Void)"))
   (space (:+ whitespace))
 )
 
@@ -97,10 +104,13 @@
     [space (return-without-pos (rlon-lexer input-port))]
     [(eof) (token-EOF)]
     ; Literals
-    [(:+ numeric) (token-NUM lexeme)]
+    [number (token-NUM (string->number lexeme))]
     [string (token-STRING (dequote lexeme))]
-    [char (token-CHAR lexeme)]
+    [char (token-CHAR (string-ref lexeme 1))]
     [id (token-IDENT lexeme)]
+    [false (token-BOOL #f)]
+    [true (token-BOOL #t)]
+    [:void (token-VOID (void))]
     ; Structure
     ["?" (token-IF)]
     ["." (token-DOT)]

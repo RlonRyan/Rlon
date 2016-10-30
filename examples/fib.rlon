@@ -1,0 +1,18 @@
+/*
+ Example of getting a fibonacci number in a better way.
+*/
+(getFib)->{
+  (@[0] > 2)?{
+    {(@[0] - 1), @[2], (@[1] + @[2])}.(getFib)
+  }~{
+    @[2]
+  }
+}
+
+(fibonacci)->{
+  {@, 1, 1}.(getFib)
+}
+
+(main)->{
+  1000.(fibonacci)
+}

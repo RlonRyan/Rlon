@@ -1,0 +1,15 @@
+/*
+ Find the sum of all the multiples of 3 or 5 below 1000.
+*/
+
+(isMultiple)->{
+  (((@ % 3) = 0) & ((@ % 5) = 0))
+}
+
+(doFind)->{
+  {0,1000}.(range):?(isMultiple)
+}
+
+(main)->{
+  (doFind)::(add)
+}
